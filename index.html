@@ -184,12 +184,6 @@
   function chargerCommentaires() {
     const saved = localStorage.getItem('comments');
     return saved ? JSON.parse(saved) : [
-      { auteur: "Marie", date: "12/06/2026", texte: "Super voyage à prévoir !" },
-      { auteur: "Thomas", date: "10/06/2026", texte: "Belle découverte que cette région." },
-      { auteur: "Sophie", date: "08/06/2026", texte: "Hâte d'aller à Clermont !" }
-    ];
-  }
-
   function sauvegarderCommentaires(comments) {
     localStorage.setItem('comments', JSON.stringify(comments));
   }
