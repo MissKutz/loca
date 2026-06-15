@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore World - Destinations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4facfe;
+      --secondary: #00f2fe;
+      --dark: #1a1a2e;
+      --text: #333;
+      --bg: #f5f7fa;
+      --white: #fff;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px;
+      --max-width: 1100px;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+    nav a {
+      color: var(--white);
+      margin: 0 12px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .form-section {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0;
+    }
+    .form-box {
+      background: var(--white);
+      padding: 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 450px;
+    }
+    .form-box h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+    }
+    .form-box label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    .form-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-box button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    footer {
+      background: var(--dark);
+      color: var(--white);
+      text-align: center;
+      padding: 25px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <h2 style="font-size: 1.5rem;">🌍 Explore</h2>
+        <div>
+          <a href="index.html">Accueil</a>
+          <a href="voyage.html">Destinations</a>
+          <a href="index.html#contact">Contact</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section class="form-section">
+    <div class="form-box">
+      <h1>Où voulez-vous aller ?</h1>
+      <form>
+        <label>Où êtes-vous ?</label>
+        <input type="text" placeholder="Ex: Paris" required>
+
+        <label>Où souhaitez-vous aller ?</label>
+        <input type="text" placeholder="Ex: Tokyo" required>
+
+        <button type="submit">Rechercher</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Explore World — Tous droits réservés</p>
+  </footer>
+</body>
+</html>
