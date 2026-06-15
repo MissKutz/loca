@@ -3,8 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loca</title>
-</head>
-<body>
-</body>
+  <title>Parcourez le monde</title>
+  <style>
+    :root {
+  --primary: #4facfe;
+  --secondary: #00f2fe;
+  --dark: #1a1a2e;
+  --text: #333;
+  --bg: #f5f7fa;
+  --white: #ffffff;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 12px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
 </html>
