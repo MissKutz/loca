@@ -49,6 +49,73 @@
 
     section { padding: 60px 0; }
     section h2 { margin-bottom: 30px; text-align: center; }
+    /* === Section commentaires === */
+.comments-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.comment-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.comment-input textarea {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.comment-input textarea::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.comment-input button {
+  margin-top: 10px;
+  padding: 12px 25px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment-list {
+  flex: 1;
+  min-width: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.comment-card {
+  background: var(--white);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.comment-card:last-child { margin-bottom: 0; }
+
+.comment-card strong { color: var(--primary); }
+.comment-card small { color: #999; font-size: 0.8rem; }
+.comment-card p { margin-top: 5px; }
+
+@media (max-width: 768px) {
+  .comments-layout { flex-direction: column; }
+}
   </style>
 </head>
 <body>
@@ -75,19 +142,31 @@
     <h2 style="text-align: center; margin-bottom: 30px;">Destinations populaires</h2>
     <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
       <div class="card" style="background: var(--white); border-radius: var(--radius); width: 280px; box-shadow: var(--shadow); overflow: hidden;">
-        <img src="https://picsum.photos/300/200?random=1" alt="Lomme" style="width: 100%; height: 180px; object-fit: cover;">
+        <img src="images/lomme.jpg" alt="Lomme" style="width: 100%; height: 180px; object-fit: cover;">
         <div style="padding: 15px 20px;">
           <h3>Lomme</h3>
           <p style="color: var(--text-light);">Ville du Nord, en périphérie de Lille.</p>
         </div>
       </div>
       <div class="card" style="background: var(--white); border-radius: var(--radius); width: 280px; box-shadow: var(--shadow); overflow: hidden;">
-        <img src="https://picsum.photos/300/200?random=4" alt="Clermont" style="width: 100%; height: 180px; object-fit: cover;">
+        <img src="images/clermont.jpg" alt="Clermont" style="width: 100%; height: 180px; object-fit: cover;">
         <div style="padding: 15px 20px;">
           <h3>Clermont</h3>
           <p style="color: var(--text-light);;">Ville dans l'Oise, au nord est de Paris.</p>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+<section id="avis">
+  <div class="container">
+    <h2>Souhaitez vous laisser un mot sur une expérience passée ou à venir ?</h2>
+    <div class="comments-layout">
+      <div class="comment-input">
+        <textarea id="newComment" placeholder="Quoi de neuf ?"></textarea>
+        <button onclick="publierCommentaire()">📝 Publier</button>
+      </div>
+      <div class="comment-list" id="commentList"></div>
     </div>
   </div>
 </section>
@@ -101,5 +180,48 @@
     </div>
   </div>
 </section>
+<script>
+  function chargerCommentaires() {
+    const saved = localStorage.getItem('comments');
+    return saved ? JSON.parse(saved) : [
+      { auteur: "Marie", date: "12/06/2026", texte: "Super voyage à prévoir !" },
+      { auteur: "Thomas", date: "10/06/2026", texte: "Belle découverte que cette région." },
+      { auteur: "Sophie", date: "08/06/2026", texte: "Hâte d'aller à Clermont !" }
+    ];
+  }
+
+  function sauvegarderCommentaires(comments) {
+    localStorage.setItem('comments', JSON.stringify(comments));
+  }
+
+  function afficherCommentaires() {
+    const list = document.getElementById('commentList');
+    const comments = chargerCommentaires();
+    list.innerHTML = comments.map(c =>
+      `<div class="comment-card">
+        <strong>${c.auteur}</strong> <small>${c.date}</small>
+        <p>${c.texte}</p>
+       </div>`
+    ).join('');
+  }
+
+  function publierCommentaire() {
+    const textarea = document.getElementById('newComment');
+    const texte = textarea.value.trim();
+    if (!texte) return alert("Écris quelque chose d'abord !");
+
+    const comments = chargerCommentaires();
+    comments.unshift({
+      auteur: "Anonyme",
+      date: new Date().toLocaleDateString('fr-FR'),
+      texte: texte
+    });
+    sauvegarderCommentaires(comments);
+    afficherCommentaires();
+    textarea.value = '';
+  }
+
+  afficherCommentaires();
+</script>
 </body>
 </html>
