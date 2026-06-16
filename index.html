@@ -292,7 +292,7 @@ function verifierAdmin() {
   list.innerHTML = commentaires.map(c => {
     const reponsesDeCeCom = reponses.filter(r => r.parentId === c.id);
     return `
-      <div class="comment-card">
+      <div class="comment-card" style="position: relative;">
         <strong>${c.auteur}</strong> <small>${c.date}</small>
         ${c.trajet ? `<p class="trajet">${c.trajet}</p>` : ''}
         <p>${c.texte}</p>
