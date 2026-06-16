@@ -333,6 +333,10 @@ function verifierAdmin() {
               <p>${r.texte}</p>
               ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">supprimer</button>` : '<button class="btn-delete" style="color: red;">supprimer</button>'}
             </div>
+            <div class="comment-card" style="position: relative;">
+              <!-- contenu -->
+              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">🗑️ Supprimer</button>` : ''}
+            </div>
           `).join('')}
         </div>
       </div>
