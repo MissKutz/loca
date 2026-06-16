@@ -234,6 +234,11 @@
         <textarea id="newComment" placeholder="Quoi de neuf ?"></textarea>
         <button onclick="publierCommentaire()">Publier</button>
         <button id="btnAdmin" onclick="adminLogin()" style="margin-left: 10px;">Admin</button>
+        <div id="adminPanel" style="display:none; margin-top:10px; padding:10px; background:#f0f0f0; border-radius:8px;">
+          <input type="password" id="adminPassword" placeholder="Mot de passe admin">
+          <button onclick="verifierAdmin()">Connexion</button>
+          <span id="adminStatus"></span>
+        </div>
       </div>
       <div class="comment-list" id="commentList"></div>
     </div>
@@ -261,7 +266,23 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const ADMIN_PASSWORD = "19022019"; // mdp pour l'admin
-  let isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+  const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+
+function adminLogin() {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function verifierAdmin() {
+  const mdp = document.getElementById('adminPassword').value;
+  if (mdp === ADMIN_PASSWORD) {
+    sessionStorage.setItem('isAdmin', 'true');
+    document.getElementById('adminStatus').textContent = 'Connecté';
+    afficherCommentaires();
+  } else {
+    alert('Mot de passe incorrect');
+  }
+}
 
   function montrerChampReponse(id) {
   const div = document.getElementById(`reponse-${id}`);
