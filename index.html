@@ -288,7 +288,7 @@
     return `
       <div class="comment-card">
         <strong>${c.auteur}</strong> <small>${c.date}</small>
-        ${c.trajet ? `<p class="trajet">🚆 ${c.trajet}</p>` : ''}
+        ${c.trajet ? `<p class="trajet">${c.trajet}</p>` : ''}
         <p>${c.texte}</p>
         <button class="btn-repondre" onclick="montrerChampReponse('${c.id}')">↩ Répondre</button>
         <div id="reponse-${c.id}" class="reponse-area" style="display:none;">
