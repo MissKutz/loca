@@ -319,7 +319,7 @@ function verifierAdmin() {
         <strong>${c.auteur}</strong> <small>${c.date}</small>
         ${c.trajet ? `<p class="trajet">${c.trajet}</p>` : ''}
         <p>${c.texte}</p>
-        ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">❌</button>` : ''}
+        ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">supprimer</button>` : ''}
         <button class="btn-repondre" onclick="montrerChampReponse('${c.id}')">↩ Répondre</button>
         <div id="reponse-${c.id}" class="reponse-area" style="display:none;">
           <input type="text" id="reponseNom-${c.id}" placeholder="Nom">
@@ -331,7 +331,7 @@ function verifierAdmin() {
             <div class="reponse-card">
               <strong>${r.auteur}</strong> <small>${r.date}</small>
               <p>${r.texte}</p>
-              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">❌</button>` : ''}
+              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">supprimer</button>` : ''}
             </div>
           `).join('')}
         </div>
