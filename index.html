@@ -193,7 +193,7 @@
   function sauvegarderCommentaires(comments) {
     localStorage.setItem('comments', JSON.stringify(comments));
   }
-  }
+
 
   function afficherCommentaires() {
     const list = document.getElementById('commentList');
@@ -224,5 +224,8 @@
 
   afficherCommentaires();
 </script>
+<footer style="background: var(--dark); color: white; text-align: center; padding: 25px; margin-top: 60px;">
+  <p>© 2026 MKwebsite</p>
+</footer>
 </body>
 </html>
