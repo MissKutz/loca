@@ -111,6 +111,33 @@
 
 .reponse-card { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; }
 
+.trajet { color: #999; font-size: 0.9rem; margin-top: 2px; }
+
+.btn-repondre {
+  background: none; border: none; color: var(--primary);
+  cursor: pointer; font-size: 0.85rem; margin-top: 8px; padding: 0;
+}
+
+.reponse-area {
+  margin-top: 10px; padding: 10px;
+  background: #f5f5f5; border-radius: 8px;
+}
+
+.reponse-area input, .reponse-area textarea {
+  width: 100%; padding: 8px; margin-bottom: 8px;
+  border: 1px solid #ddd; border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.reponse-area button {
+  padding: 6px 15px; background: var(--primary);
+  color: #fff; border: none; border-radius: 20px; cursor: pointer;
+}
+
+.reponses { margin-top: 10px; margin-left: 20px; border-left: 2px solid #ddd; padding-left: 15px; }
+
+.reponse-card { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; }
+
 .comment-input textarea::placeholder {
   color: #999;
   font-style: italic;
@@ -233,17 +260,10 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  async function chargerCommentaires() {
-    const snapshot = await db.collection("comments").orderBy("timestamp", "desc").get();
-    const comments = [];
-    snapshot.forEach(doc => comments.push(doc.data()));
-    return comments;
-  }
-
-  async function montrerChampReponse(id) {
-    const div = document.getElementById(`reponse-${id}`);
-    div.style.display = div.style.display === 'none' ? 'block' : 'none';
-  }
+  function montrerChampReponse(id) {
+  const div = document.getElementById(`reponse-${id}`);
+  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+}
 
   async function afficherCommentaires() {
   const list = document.getElementById('commentList');
@@ -298,7 +318,7 @@
   await db.collection("comments").add({
     auteur: nom,
     trajet: trajet,
-    date: new Date().toLocaleDateString('fr-FR'),
+    date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: Date.now(),
     texte: texte,
     parentId: null   // ← main com
@@ -318,7 +338,7 @@ async function publierReponse(parentId) {
 
   await db.collection("comments").add({
     auteur: nom, trajet: "",
-    date: new Date().toLocaleDateString('fr-FR'),
+    date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: Date.now(), texte: texte,
     parentId: parentId
   });
