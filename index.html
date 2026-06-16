@@ -74,6 +74,16 @@
   min-height: 120px;
 }
 
+.comment-input input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+}
+
 .comment-input textarea::placeholder {
   color: #999;
   font-style: italic;
@@ -165,6 +175,8 @@
     <h2>Souhaitez vous laisser un mot sur une expérience passée ou à venir ?</h2>
     <div class="comments-layout">
       <div class="comment-input">
+        <input type="text" id="nomInput" placeholder="Votre nom (ou laissez vide pour Anonyme)">
+        <input type="text" id="trajetInput" placeholder="Votre trajet (optionnel)">
         <textarea id="newComment" placeholder="Quoi de neuf ?"></textarea>
         <button onclick="publierCommentaire()">📝 Publier</button>
       </div>
