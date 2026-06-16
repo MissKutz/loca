@@ -178,7 +178,7 @@
         <input type="text" id="nomInput" placeholder="Votre nom (ou laissez vide pour Anonyme)">
         <input type="text" id="trajetInput" placeholder="Votre trajet (optionnel)">
         <textarea id="newComment" placeholder="Quoi de neuf ?"></textarea>
-        <button onclick="publierCommentaire()">📝 Publier</button>
+        <button onclick="publierCommentaire()">Publier</button>
       </div>
       <div class="comment-list" id="commentList"></div>
     </div>
@@ -223,26 +223,32 @@
     list.innerHTML = comments.map(c =>
       `<div class="comment-card">
         <strong>${c.auteur}</strong> <small>${c.date}</small>
+         ${c.trajet ? `<p style="color:var(--primary);font-size:0.9rem;"> ${c.trajet}</p>` : ''}
         <p>${c.texte}</p>
        </div>`
     ).join('');
   }
 
   async function publierCommentaire() {
-    const textarea = document.getElementById('newComment');
-    const texte = textarea.value.trim();
-    if (!texte) return alert("Écris quelque chose d'abord !");
+  const nom = document.getElementById('nomInput').value.trim() || "Anonyme";
+  const trajet = document.getElementById('trajetInput').value.trim();
+  const texte = document.getElementById('newComment').value.trim();
 
-    await db.collection("comments").add({
-      auteur: "Anonyme",
-      date: new Date().toLocaleDateString('fr-FR'),
-      timestamp: Date.now(),
-      texte: texte
-    });
+  if (!texte) return alert("Écris un message d'abord !");
 
-    textarea.value = '';
-    afficherCommentaires();
-  }
+  await db.collection("comments").add({
+    auteur: nom,
+    trajet: trajet || "",
+    date: new Date().toLocaleDateString('fr-FR'),
+    timestamp: Date.now(),
+    texte: texte
+  });
+
+  document.getElementById('nomInput').value = '';
+  document.getElementById('trajetInput').value = '';
+  document.getElementById('newComment').value = '';
+  afficherCommentaires();
+}
 
   afficherCommentaires();
 </script>
