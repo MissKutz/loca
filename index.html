@@ -335,11 +335,11 @@ function verifierAdmin() {
             </div>
             <div class="comment-card" style="position: relative;">
               <!-- contenu -->
-              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">🗑️ Supprimer</button>` : ''}
+              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">supprimer</button>` : ''}
             </div>
             <div class="reponse-card" style="position: relative;">
               <!-- contenu -->
-              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">🗑️ Supprimer</button>` : ''}
+              ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">supprimer</button>` : ''}
             </div>
           `).join('')}
         </div>
