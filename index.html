@@ -181,11 +181,18 @@
   </div>
 </section>
 <script>
-  function chargerCommentaires() {
+    function chargerCommentaires() {
     const saved = localStorage.getItem('comments');
     return saved ? JSON.parse(saved) : [
+      { auteur: "Zozo", date: "16/06/2026", texte: "Hâte de découvrir une nouvelle destination !" },
+      { auteur: "Gagane", date: "10/06/2026", texte: "Vive le nord !" },
+      { auteur: "Anonyme", date: "08/06/2026", texte: "Hâte de visiter Clermont !" }
+    ];
+  }
+
   function sauvegarderCommentaires(comments) {
     localStorage.setItem('comments', JSON.stringify(comments));
+  }
   }
 
   function afficherCommentaires() {
