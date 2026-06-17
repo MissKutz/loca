@@ -255,6 +255,19 @@
   let etapeActuelle = 1;
   let agesVoyageurs = [];
 
+  // Lecture du paramètre ?arrivee= dans l'URL
+  const params = new URLSearchParams(window.location.search);
+  const villeArrivee = params.get('arrivee');
+  if (villeArrivee) {
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('arrivee').value = villeArrivee;
+    });
+    // Si la page est déjà chargée
+    if (document.getElementById('arrivee')) {
+      document.getElementById('arrivee').value = villeArrivee;
+    }
+  }
+
   function nextStep(etape) {
   // Valider l'étape actuelle
   if (etapeActuelle === 1 && !document.getElementById('depart').value.trim()) {
