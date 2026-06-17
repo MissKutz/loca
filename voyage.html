@@ -386,8 +386,6 @@ async function getRoute(depart, arrivee, profile) {
 function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArrivee) {
   const distanceKm = trajet.distance / 1000;
   const options = [];
-
-  if (t.nom === '✈️ Avion' && distanceKm < 200) continue;
   
   const transports = [
     { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },
@@ -398,6 +396,7 @@ function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArriv
   ];
   
   for (const t of transports) {
+    if (t.nom === '✈️ Avion' && distanceKm < 200) continue;
     const dureeMin = Math.round(distanceKm / t.vitesse * 60) + (t.tempsFixe || 0);
     const prix = Math.round(distanceKm * t.coutKm * nbPersonnes);
     options.push({
