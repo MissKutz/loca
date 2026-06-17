@@ -217,12 +217,11 @@
     </div>
     
     <div id="step5" class="step">
-      <label>Heure de départ prévue ?</label>
+      <label>Date de départ</label>
+      <input type="date" id="dateDepart" required>
+      <label>Heure de départ</label>
       <input type="time" id="heureDepart" value="08:00" required>
-      <div class="btn-group">
-        <button class="btn-prev" onclick="prevStep(4)">Retour</button>
-        <button onclick="nextStep(6)">Suivant</button>
-      </div>
+      ...
     </div>
     
     <div id="step6" class="step">
@@ -315,7 +314,9 @@ async function calculerTrajet() {
   const arrivee = document.getElementById('arrivee').value.trim();
   const nb = parseInt(document.getElementById('nbVoyageurs').value) || 1;
   const heure = document.getElementById('heureDepart').value;
+  const date = document.getElementById('dateDepart').value;
   const transport = document.getElementById('transportPref').value;
+
   
   // Récupérer les âges
   agesVoyageurs = [];
@@ -347,12 +348,13 @@ async function calculerTrajet() {
   } catch (error) {
     document.getElementById('loading').classList.remove('active');
     document.getElementById(`step${etapeActuelle}`).classList.add('active');
+    console.error("Réponse API :", error);
     alert("Erreur : " + error.message + "\n\nVérifie que les villes existent et que ta clé API est valide.");
   }
 }
 
 async function geocoder(ville) {
-  const url = `https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(ville)}&size=1`;
+  const url = `https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(ville)}&boundary.country=FR&size=1`;
   const res = await fetch(url);
   const data = await res.json();
   
