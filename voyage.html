@@ -386,12 +386,15 @@ async function getRoute(depart, arrivee, profile) {
 function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArrivee) {
   const distanceKm = trajet.distance / 1000;
   const options = [];
+
+  if (t.nom === '✈️ Avion' && distanceKm < 200) continue;
   
   const transports = [
     { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },
     { nom: '🚌 Transport en commun', vitesse: 50, coutKm: 0.15 },
     { nom: '🚲 Vélo', vitesse: 15, coutKm: 0 },
     { nom: '🚶 À pied', vitesse: 5, coutKm: 0 }
+    { nom: '✈️ Avion', vitesse: 800, coutKm: 0.12 }
   ];
   
   for (const t of transports) {
