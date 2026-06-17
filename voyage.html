@@ -442,6 +442,14 @@ function mettreAJourIndicateur() {
   });
 } 
 
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const step = document.querySelector('.step.active');
+    if (!step) return;
+    const btn = step.querySelector('button:not(.btn-prev)');
+    if (btn) btn.click();
+  }
+});
 
 
   </script>
