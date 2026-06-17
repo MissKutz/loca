@@ -98,6 +98,62 @@
       text-align: center;
       padding: 25px;
     }
+
+    /* Multi-step */
+.step { display: none; }
+.step.active { display: block; }
+
+.step-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; }
+.dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #ddd; transition: 0.3s;
+}
+.dot.active { background: var(--primary); transform: scale(1.3); }
+.dot.done { background: var(--secondary); }
+
+.btn-group { display: flex; gap: 10px; margin-top: 20px; }
+.btn-prev {
+  flex: 1; padding: 12px; background: #ddd; color: #333;
+  border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer;
+}
+.btn-group button[onclick*="nextStep"], .btn-group button:last-child {
+  flex: 1; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white); border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer;
+}
+
+/* Champs d'âge */
+.age-field { margin-bottom: 10px; }
+.age-field label { display: block; font-size: 0.9rem; margin-bottom: 3px; }
+.age-field input {
+  width: 100%; padding: 10px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 1rem;
+}
+
+/* Loading */
+.spinner {
+  width: 40px; height: 40px; border: 4px solid #ddd;
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 20px auto;
+}
+@keyframes spin { to { rotate: 360deg; } }
+
+/* Résultats */
+.trajet-card {
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; margin-bottom: 15px;
+}
+.trajet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.trajet-num {
+  background: var(--primary); color: white; padding: 4px 12px;
+  border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+}
+.trajet-transport { font-size: 1.1rem; font-weight: 600; }
+.trajet-details p { margin: 4px 0; font-size: 0.95rem; }
+.maps-link {
+  display: inline-block; margin-top: 10px; padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white; border-radius: 30px; text-decoration: none; font-weight: 600;
+}
     
   </style>
 </head>
@@ -116,22 +172,324 @@
   </header>
 
   <section class="form-section">
-    <div class="form-box">
-      <h1>Où voulez-vous aller ?</h1>
-      <form>
-        <label>Où êtes-vous ?</label>
-        <input type="text" placeholder="Ex: Paris" required>
-
-        <label>Où souhaitez-vous aller ?</label>
-        <input type="text" placeholder="Ex: Tokyo" required>
-
-        <button type="submit">Rechercher</button>
-      </form>
+  <div class="form-box">
+    <h1 id="stepTitle">Où êtes-vous ?</h1>
+    <div id="stepIndicator" class="step-dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
     </div>
-  </section>
+    
+    <div id="step1" class="step active">
+      <label>Où êtes-vous ?</label>
+      <input type="text" id="depart" placeholder="Ex: Paris" required>
+      <button onclick="nextStep(2)">Suivant</button>
+    </div>
+    
+    <div id="step2" class="step">
+      <label>Où souhaitez-vous aller ?</label>
+      <input type="text" id="arrivee" placeholder="Ex: Lyon" required>
+      <div class="btn-group">
+        <button class="btn-prev" onclick="prevStep(1)">Retour</button>
+        <button onclick="nextStep(3)">Suivant</button>
+      </div>
+    </div>
+    
+    <div id="step3" class="step">
+      <label>Combien êtes-vous ?</label>
+      <input type="number" id="nbVoyageurs" min="1" max="20" value="1" required>
+      <div class="btn-group">
+        <button class="btn-prev" onclick="prevStep(2)">Retour</button>
+        <button onclick="nextStep(4)">Suivant</button>
+      </div>
+    </div>
+    
+    <div id="step4" class="step">
+      <label>Âge de chaque personne</label>
+      <div id="agesContainer"></div>
+      <div class="btn-group">
+        <button class="btn-prev" onclick="prevStep(3)">Retour</button>
+        <button onclick="nextStep(5)">Suivant</button>
+      </div>
+    </div>
+    
+    <div id="step5" class="step">
+      <label>Heure de départ prévue ?</label>
+      <input type="time" id="heureDepart" value="08:00" required>
+      <div class="btn-group">
+        <button class="btn-prev" onclick="prevStep(4)">Retour</button>
+        <button onclick="nextStep(6)">Suivant</button>
+      </div>
+    </div>
+    
+    <div id="step6" class="step">
+      <label>Moyen de transport favori ?</label>
+      <select id="transportPref">
+        <option value="driving-car">🚗 Voiture</option>
+        <option value="public-transport">🚌 Transport en commun</option>
+        <option value="cycling-regular">🚲 Vélo</option>
+        <option value="foot-walking">🚶 À pied</option>
+      </select>
+      <div class="btn-group">
+        <button class="btn-prev" onclick="prevStep(5)">Retour</button>
+        <button onclick="calculerTrajet()">Rechercher</button>
+      </div>
+    </div>
+    
+    <!-- Zone de chargement -->
+    <div id="loading" class="step">
+      <p>🔍 Recherche des meilleurs trajets...</p>
+      <div class="spinner"></div>
+    </div>
+    
+    <!-- Zone de résultats -->
+    <div id="results" class="step">
+      <h2 id="resultTitle">Trajets trouvés</h2>
+      <div id="trajetsList"></div>
+      <button class="btn-prev" onclick="resetForm()">Nouvelle recherche</button>
+    </div>
+  </div>
+</section>
+<section id="resultats-section" style="display:none; padding: 60px 0;">
+  <div class="container">
+    <div id="trajetsContainer"></div>
+  </div>
+</section>
 
   <footer>
     <p>© 2026 MKwebsite</p>
   </footer>
+
+  <script>  
+  const API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkzZmFhOTU4ODMxNTRhZjBhYmM2ZTc4YzViN2ZkMzQ3IiwiaCI6Im11cm11cjY0In0="; // ← mets ta clé ici
+  let etapeActuelle = 1;
+  let agesVoyageurs = [];
+
+  function nextStep(etape) {
+  // Valider l'étape actuelle
+  if (etapeActuelle === 1 && !document.getElementById('depart').value.trim()) {
+    return alert("Veuillez entrer votre point de départ");
+  }
+  if (etapeActuelle === 2 && !document.getElementById('arrivee').value.trim()) {
+    return alert("Veuillez entrer votre destination");
+  }
+  if (etapeActuelle === 3) {
+    genererChampsAge();
+  }
+  
+  document.getElementById(`step${etapeActuelle}`).classList.remove('active');
+  etapeActuelle = etape;
+  document.getElementById(`step${etape}`).classList.add('active');
+  mettreAJourIndicateur();
+}
+
+function prevStep(etape) {
+  document.getElementById(`step${etapeActuelle}`).classList.remove('active');
+  etapeActuelle = etape;
+  document.getElementById(`step${etape}`).classList.add('active');
+  mettreAJourIndicateur();
+}
+
+function genererChampsAge() {
+  const nb = parseInt(document.getElementById('nbVoyageurs').value) || 1;
+  const container = document.getElementById('agesContainer');
+  container.innerHTML = '';
+  agesVoyageurs = [];
+  
+  for (let i = 0; i < nb; i++) {
+    const div = document.createElement('div');
+    div.className = 'age-field';
+    div.innerHTML = `
+      <label>Âge de la personne ${i + 1} :</label>
+      <input type="number" class="age-input" min="0" max="120" placeholder="Âge" required>
+    `;
+    container.appendChild(div);
+  }
+}
+
+async function calculerTrajet() {
+  const depart = document.getElementById('depart').value.trim();
+  const arrivee = document.getElementById('arrivee').value.trim();
+  const nb = parseInt(document.getElementById('nbVoyageurs').value) || 1;
+  const heure = document.getElementById('heureDepart').value;
+  const transport = document.getElementById('transportPref').value;
+  
+  // Récupérer les âges
+  agesVoyageurs = [];
+  document.querySelectorAll('.age-input').forEach(input => {
+    agesVoyageurs.push(parseInt(input.value) || 30);
+  });
+  
+  // Afficher le chargement
+  document.getElementById(`step${etapeActuelle}`).classList.remove('active');
+  document.getElementById('loading').classList.add('active');
+  
+  try {
+    // Étape 1 : Géocodage inverse (ville → coordonnées)
+    const [coordsDepart, coordsArrivee] = await Promise.all([
+      geocoder(depart),
+      geocoder(arrivee)
+    ]);
+    
+    // Étape 2 : Calcul de l'itinéraire
+    const trajet = await getRoute(coordsDepart, coordsArrivee, transport);
+    
+    // Étape 3 : Générer les options
+    const options = genererOptions(trajet, nb, agesVoyageurs, transport, depart, arrivee);
+    
+    // Afficher les résultats
+    document.getElementById('loading').classList.remove('active');
+    afficherResultats(options, depart, arrivee);
+    
+  } catch (error) {
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById(`step${etapeActuelle}`).classList.add('active');
+    alert("Erreur : " + error.message + "\n\nVérifie que les villes existent et que ta clé API est valide.");
+  }
+}
+
+async function geocoder(ville) {
+  const url = `https://api.openrouteservice.org/geocode/search?api_key=${API_KEY}&text=${encodeURIComponent(ville)}&size=1`;
+  const res = await fetch(url);
+  const data = await res.json();
+  
+  if (!data.features || data.features.length === 0) {
+    throw new Error(`Ville introuvable : ${ville}`);
+  }
+  
+  const coords = data.features[0].geometry.coordinates;
+  return { lng: coords[0], lat: coords[1] };
+}
+
+async function getRoute(depart, arrivee, profile) {
+  const url = `https://api.openrouteservice.org/v2/directions/${profile}?api_key=${API_KEY}&start=${depart.lng},${depart.lat}&end=${arrivee.lng},${arrivee.lat}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  
+  if (!data.features || data.features.length === 0) {
+    throw new Error("Aucun itinéraire trouvé");
+  }
+  
+  const segment = data.features[0].properties.segments[0];
+  return {
+    distance: segment.distance, // en mètres
+    duration: segment.duration, // en secondes
+    steps: segment.steps
+  };
+}
+
+function genererOptions(trajet, nbPersonnes, ages, transportPref, villeDepart, villeArrivee) {
+  const distanceKm = trajet.distance / 1000;
+  const dureeMin = Math.round(trajet.duration / 60);
+  const options = [];
+  
+  // Toujours l'option choisie par l'utilisateur
+  options.push(creerOption(transportPref, distanceKm, dureeMin, nbPersonnes, ages, villeDepart, villeArrivee));
+  
+  // Ajouter d'autres moyens de transport si différent
+  const autresTransports = ['driving-car', 'public-transport', 'cycling-regular', 'foot-walking']
+    .filter(t => t !== transportPref)
+    .slice(0, 4);
+  
+  // Pour les autres options, on estime les données
+  for (const t of autresTransports) {
+    const facteurs = {
+      'driving-car': { vitesse: 80, coutKm: 0.10 },
+      'public-transport': { vitesse: 60, coutKm: 0.15 },
+      'cycling-regular': { vitesse: 15, coutKm: 0 },
+      'foot-walking': { vitesse: 5, coutKm: 0 }
+    };
+    const f = facteurs[t];
+    const dureeEstimee = Math.round(distanceKm / f.vitesse * 60);
+    const prixEstime = Math.round(distanceKm * f.coutKm * nbPersonnes);
+    options.push(creerOption(t, distanceKm, dureeEstimee, nbPersonnes, ages, villeDepart, villeArrivee, prixEstime));
+  }
+  
+  return options;
+}
+
+function creerOption(transport, distanceKm, dureeMin, nbPersonnes, ages, depart, arrivee, prixCustom = null) {
+  const nomsTransport = {
+    'driving-car': 'Voiture',
+    'public-transport': 'Transport en commun',
+    'cycling-regular': 'Vélo',
+    'foot-walking': 'À pied'
+  };
+  
+  // Calcul du prix
+  let prix;
+  if (prixCustom !== null) {
+    prix = prixCustom;
+  } else {
+    const couts = {
+      'driving-car': distanceKm * 0.10,
+      'public-transport': distanceKm * 0.15 * nbPersonnes,
+      'cycling-regular': 0,
+      'foot-walking': 0
+    };
+    prix = Math.round(couts[transport] || 0);
+  }
+  
+  return {
+    transport: nomsTransport[transport] || transport,
+    duree: dureeMin,
+    dureeTexte: dureeMin >= 60 
+      ? `${Math.floor(dureeMin / 60)}h${dureeMin % 60}` 
+      : `${dureeMin} min`,
+    distance: Math.round(distanceKm),
+    prix: prix,
+    lien: `https://www.google.com/maps/dir/${encodeURIComponent(depart)}/${encodeURIComponent(arrivee)}`,
+    nbPersonnes: nbPersonnes,
+    ages: ages
+  };
+} 
+
+function afficherResultats(options, depart, arrivee) {
+  document.getElementById('loading').classList.remove('active');
+  document.getElementById('results').classList.add('active');
+  document.getElementById('resultTitle').textContent = `Trajets de ${depart} à ${arrivee}`;
+  
+  const list = document.getElementById('trajetsList');
+  list.innerHTML = options.map((opt, i) => `
+    <div class="trajet-card">
+      <div class="trajet-header">
+        <span class="trajet-num">Option ${i + 1}</span>
+        <span class="trajet-transport">${opt.transport}</span>
+      </div>
+      <div class="trajet-details">
+        <p>Distance : ${opt.distance} km</p>
+        <p>Durée : ${opt.dureeTexte}</p>
+        <p>Prix estimé : ${opt.prix} €</p>
+        <p>Voyageurs : ${opt.nbPersonnes} (âges : ${opt.ages.join(', ')})</p>
+      </div>
+      <a href="${opt.lien}" target="_blank" class="maps-link">🗺️ Voir sur Google Maps</a>
+    </div>
+  `).join('');
+  
+  // Scroll vers les résultats
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('results').classList.remove('active');
+  etapeActuelle = 1;
+  document.getElementById(`step1`).classList.add('active');
+  mettreAJourIndicateur();
+} 
+
+function mettreAJourIndicateur() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('active', i + 1 === etapeActuelle);
+    dot.classList.toggle('done', i + 1 < etapeActuelle);
+  });
+} 
+
+
+
+  </script>
 </body>
 </html>
