@@ -393,12 +393,12 @@ function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArriv
     { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },
     { nom: '🚌 Transport en commun', vitesse: 50, coutKm: 0.15 },
     { nom: '🚲 Vélo', vitesse: 15, coutKm: 0 },
-    { nom: '🚶 À pied', vitesse: 5, coutKm: 0 }
-    { nom: '✈️ Avion', vitesse: 800, coutKm: 0.12 }
+    { nom: '🚶 À pied', vitesse: 5, coutKm: 0 },
+    { nom: '✈️ Avion', vitesse: 800, coutKm: 0.12, tempsFixe: 120 }
   ];
   
   for (const t of transports) {
-    const dureeMin = Math.round(distanceKm / t.vitesse * 60);
+    const dureeMin = Math.round(distanceKm / t.vitesse * 60) + (t.tempsFixe || 0);
     const prix = Math.round(distanceKm * t.coutKm * nbPersonnes);
     options.push({
       transport: t.nom,
