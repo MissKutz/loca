@@ -180,7 +180,6 @@
       <span class="dot"></span>
       <span class="dot"></span>
       <span class="dot"></span>
-      <span class="dot"></span>
     </div>
     
     <div id="step1" class="step active">
@@ -324,10 +323,10 @@ async function calculerTrajet() {
     ]);
     
     // Étape 2 : Calcul de l'itinéraire
-    const trajet = await getRoute(coordsDepart, coordsArrivee, transport);
+    const trajet = await getRoute(coordsDepart, coordsArrivee, 'driving-car');
     
-    // Étape 3 : Générer les options
-    const options = genererOptions(trajet, nb, agesVoyageurs, transport, depart, arrivee);
+    // Étape 3 : Générer les 4 options
+    const options = genererToutesOptions(trajet, nb, agesVoyageurs, depart, arrivee);
     
     // Afficher les résultats
     document.getElementById('loading').classList.remove('active');
@@ -371,70 +370,35 @@ async function getRoute(depart, arrivee, profile) {
   };
 }
 
-function genererOptions(trajet, nbPersonnes, ages, transportPref, villeDepart, villeArrivee) {
+function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArrivee) {
   const distanceKm = trajet.distance / 1000;
-  const dureeMin = Math.round(trajet.duration / 60);
   const options = [];
   
-  // Toujours l'option choisie par l'utilisateur
-  options.push(creerOption(transportPref, distanceKm, dureeMin, nbPersonnes, ages, villeDepart, villeArrivee));
+  const transports = [
+    { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },
+    { nom: '🚌 Transport en commun', vitesse: 50, coutKm: 0.15 },
+    { nom: '🚲 Vélo', vitesse: 15, coutKm: 0 },
+    { nom: '🚶 À pied', vitesse: 5, coutKm: 0 }
+  ];
   
-  // Ajouter d'autres moyens de transport si différent
-  const autresTransports = ['driving-car', 'public-transport', 'cycling-regular', 'foot-walking']
-    .filter(t => t !== transportPref)
-    .slice(0, 4);
-  
-  // Pour les autres options, on estime les données
-  for (const t of autresTransports) {
-    const facteurs = {
-      'driving-car': { vitesse: 80, coutKm: 0.10 },
-      'public-transport': { vitesse: 60, coutKm: 0.15 },
-      'cycling-regular': { vitesse: 15, coutKm: 0 },
-      'foot-walking': { vitesse: 5, coutKm: 0 }
-    };
-    const f = facteurs[t];
-    const dureeEstimee = Math.round(distanceKm / f.vitesse * 60);
-    const prixEstime = Math.round(distanceKm * f.coutKm * nbPersonnes);
-    options.push(creerOption(t, distanceKm, dureeEstimee, nbPersonnes, ages, villeDepart, villeArrivee, prixEstime));
+  for (const t of transports) {
+    const dureeMin = Math.round(distanceKm / t.vitesse * 60);
+    const prix = Math.round(distanceKm * t.coutKm * nbPersonnes);
+    options.push({
+      transport: t.nom,
+      duree: dureeMin,
+      dureeTexte: dureeMin >= 60 
+        ? `${Math.floor(dureeMin / 60)}h${dureeMin % 60}` 
+        : `${dureeMin} min`,
+      distance: Math.round(distanceKm),
+      prix: prix,
+      lien: `https://www.google.com/maps/dir/${encodeURIComponent(villeDepart)}/${encodeURIComponent(villeArrivee)}`,
+      nbPersonnes: nbPersonnes,
+      ages: ages
+    });
   }
   
   return options;
-}
-
-function creerOption(transport, distanceKm, dureeMin, nbPersonnes, ages, depart, arrivee, prixCustom = null) {
-  const nomsTransport = {
-    'driving-car': 'Voiture',
-    'public-transport': 'Transport en commun',
-    'cycling-regular': 'Vélo',
-    'foot-walking': 'À pied'
-  };
-  
-  // Calcul du prix
-  let prix;
-  if (prixCustom !== null) {
-    prix = prixCustom;
-  } else {
-    const couts = {
-      'driving-car': distanceKm * 0.10,
-      'public-transport': distanceKm * 0.15 * nbPersonnes,
-      'cycling-regular': 0,
-      'foot-walking': 0
-    };
-    prix = Math.round(couts[transport] || 0);
-  }
-  
-  return {
-    transport: nomsTransport[transport] || transport,
-    duree: dureeMin,
-    dureeTexte: dureeMin >= 60 
-      ? `${Math.floor(dureeMin / 60)}h${dureeMin % 60}` 
-      : `${dureeMin} min`,
-    distance: Math.round(distanceKm),
-    prix: prix,
-    lien: `https://www.google.com/maps/dir/${encodeURIComponent(depart)}/${encodeURIComponent(arrivee)}`,
-    nbPersonnes: nbPersonnes,
-    ages: ages
-  };
 } 
 
 function afficherResultats(options, depart, arrivee) {
