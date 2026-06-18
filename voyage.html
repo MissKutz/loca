@@ -383,33 +383,45 @@ async function getRoute(depart, arrivee, profile) {
   };
 }
 
+// Génère toutes les options de transport avec des estimations réalistes
+// Prend la distance de l'itinéraire calculé par l'API et crée des options pour chaque mode de transport
 function genererToutesOptions(trajet, nbPersonnes, ages, villeDepart, villeArrivee) {
-  const distanceKm = trajet.distance / 1000;
+  const distanceKm = trajet.distance / 1000; // Convertir mètres en kilomètres
   const options = [];
   
+  // Toutes les options de transport avec leurs vitesses et coûts par km
   const transports = [
-    { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },
-    { nom: '🚌 Transport en commun', vitesse: 50, coutKm: 0.15 },
-    { nom: '🚲 Vélo', vitesse: 15, coutKm: 0 },
-    { nom: '🚶 À pied', vitesse: 5, coutKm: 0 },
-    { nom: '✈️ Avion', vitesse: 800, coutKm: 0.12, tempsFixe: 120 }
+    { nom: '🚗 Voiture', vitesse: 80, coutKm: 0.10 },           // 80 km/h, 0.10€/km
+    { nom: '🚌 Transport en commun', vitesse: 50, coutKm: 0.15 }, // 50 km/h, 0.15€/km
+    { nom: '🚲 Vélo', vitesse: 15, coutKm: 0 },                 // 15 km/h, gratuit
+    { nom: '🚶 À pied', vitesse: 5, coutKm: 0 },                // 5 km/h, gratuit
+    { nom: '✈️ Avion', vitesse: 800, coutKm: 0.12, tempsFixe: 120 } // 800 km/h, 0.12€/km, +2h d'aéroport
   ];
   
+  // Pour chaque transport, calculer la durée et le prix estimés
   for (const t of transports) {
+    // Skip l'avion pour les trajets courts (< 200 km) car ce n'est pas pratique
     if (t.nom === '✈️ Avion' && distanceKm < 200) continue;
+    
+    // Calculer la durée de trajet en minutes (distance / vitesse * 60)
+    // Ajouter le temps fixe pour l'avion (2h = 120 min) si applicable
     const dureeMin = Math.round(distanceKm / t.vitesse * 60) + (t.tempsFixe || 0);
+    
+    // Calculer le prix : distance * coût par km * nombre de personnes
     const prix = Math.round(distanceKm * t.coutKm * nbPersonnes);
+    
+    // Créer l'objet option avec tous les détails
     options.push({
-      transport: t.nom,
-      duree: dureeMin,
-      dureeTexte: dureeMin >= 60 
-        ? `${Math.floor(dureeMin / 60)}h${dureeMin % 60}` 
+      transport: t.nom,                                    // Nom du transport avec emoji
+      duree: dureeMin,                                   // Durée en minutes
+      dureeTexte: dureeMin >= 60                          // Formatage de la durée (1h30, 45 min, etc.)
+        ? `${Math.floor(dureeMin / 60)}h${dureeMin % 60}`
         : `${dureeMin} min`,
-      distance: Math.round(distanceKm),
-      prix: prix,
-      lien: `https://www.google.com/maps/dir/${encodeURIComponent(villeDepart)}/${encodeURIComponent(villeArrivee)}`,
-      nbPersonnes: nbPersonnes,
-      ages: ages
+      distance: Math.round(distanceKm),                   // Distance en km arrondie
+      prix: prix,                                         // Prix total
+      lien: `https://www.google.com/maps/dir/${encodeURIComponent(villeDepart)}/${encodeURIComponent(villeArrivee)}`, // Lien Google Maps
+      nbPersonnes: nbPersonnes,                            // Nombre de personnes
+      ages: ages                                          // Âges des personnes
     });
   }
   

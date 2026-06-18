@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-storage-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     /* Variables */
@@ -144,6 +145,19 @@
   cursor: pointer;
 }
 
+.paste-preview {
+  margin-top: 10px; padding: 10px; background: #f5f5f5;
+  border-radius: 8px; display: none;
+}
+.paste-preview img {
+  max-width: 100%; max-height: 200px; border-radius: 6px;
+}
+.paste-preview p { font-size: 0.85rem; color: #999; margin-top: 5px; }
+
+.comment-image {
+  max-width: 100%; max-height: 300px; border-radius: 6px; margin-top: 8px;
+}
+
 .comment-list {
   flex: 1;
   min-width: 250px;
@@ -248,6 +262,8 @@
         <input type="text" id="nomInput" placeholder="Votre nom (vide = Anonyme)">
         <input type="text" id="trajetInput" placeholder="Votre trajet (optionnel)">
         <textarea id="newComment" placeholder="Quoi de neuf ?"></textarea>
+        <div class="paste-preview" id="pastePreview"><img id="previewImage"><p>📷 Image collée</p></div>
+        <p style="font-size:0.8rem;color:#999;margin:5px 0 0;">💡 Colle une image (Ctrl+V) pour l'ajouter</p>
         <button onclick="publierCommentaire()">Publier</button>
         <button id="btnAdmin" onclick="adminLogin()" style="background: linear-gradient(to bottom, #555, #222); color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Cantarell', sans-serif;">Admin</button>
         <div id="adminPanel" style="display:none; margin-top:10px; padding:10px; background:#f0f0f0; border-radius:8px;">
@@ -287,6 +303,8 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  const storage = firebase.storage();
+  let imageUrl = null;
   const ADMIN_PASSWORD = "14022019"; // mdp pour l'admin
   const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
 
@@ -305,6 +323,45 @@ function verifierAdmin() {
     alert('Mot de passe incorrect');
   }
 }
+
+document.addEventListener('paste', async function(e) {
+  const target = e.target;
+  if (!target || !target.id) return;
+  const items = e.clipboardData.items;
+  let file = null;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) { file = item.getAsFile(); break; }
+  }
+  if (!file) return;
+  e.preventDefault();
+  
+  // Nouveau commentaire
+  if (target.id === 'newComment') {
+    const nomFichier = `comments/${Date.now()}_${file.name}`;
+    const ref = storage.ref(nomFichier);
+    const snapshot = await ref.put(file);
+    imageUrl = await snapshot.ref.getDownloadURL();
+    document.getElementById('previewImage').src = imageUrl;
+    document.getElementById('pastePreview').style.display = 'block';
+  }
+  
+  // Réponse à un commentaire
+  const match = target.id.match(/^reponseTexte-(.+)$/);
+  if (match) {
+    const parentId = match[1];
+    const nomFichier = `comments/${Date.now()}_${file.name}`;
+    const ref = storage.ref(nomFichier);
+    const snapshot = await ref.put(file);
+    const url = await snapshot.ref.getDownloadURL();
+    const preview = document.getElementById(`reponsePreview-${parentId}`);
+    const img = document.getElementById(`reponseImg-${parentId}`);
+    if (preview && img) {
+      img.src = url;
+      preview.style.display = 'block';
+      img.dataset.url = url;
+    }
+  }
+});
 
   function montrerChampReponse(id) {
   const div = document.getElementById(`reponse-${id}`);
@@ -336,11 +393,13 @@ function verifierAdmin() {
         <strong>${c.auteur}</strong> <small>${c.date}</small>
         ${c.trajet ? `<p class="trajet">${c.trajet}</p>` : ''}
         <p>${c.texte}</p>
+        ${c.image ? `<img src="${c.image}" class="comment-image">` : ''}
         ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${c.id}')">Supprimer</button>` : ''}
         <button class="btn-repondre" onclick="montrerChampReponse('${c.id}')">↩ Répondre</button>
         <div id="reponse-${c.id}" class="reponse-area" style="display:none;">
           <input type="text" id="reponseNom-${c.id}" placeholder="Nom">
           <textarea id="reponseTexte-${c.id}" placeholder="Écrire une réponse..." rows="2"></textarea>
+          <div class="paste-preview" id="reponsePreview-${c.id}"><img id="reponseImg-${c.id}"><p>📷 Image collée</p></div>
           <button onclick="publierReponse('${c.id}')">Envoyer</button>
         </div>
         <div class="reponses">
@@ -348,6 +407,7 @@ function verifierAdmin() {
             <div class="reponse-card" style="position: relative;">
               <strong>${r.auteur}</strong> <small>${r.date}</small>
               <p>${r.texte}</p>
+              ${r.image ? `<img src="${r.image}" class="comment-image">` : ''}
               ${isAdmin ? `<button class="btn-delete" onclick="supprimerCommentaire('${r.id}')">Supprimer</button>` : ''}
             </div>
           `).join('')}
@@ -369,13 +429,16 @@ function verifierAdmin() {
     date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: Date.now(),
     texte: texte,
-    parentId: null   // ← main com
+    parentId: null,
+    image: imageUrl || null
   });
 
   // efface les champs
   document.getElementById('nomInput').value = '';
   document.getElementById('trajetInput').value = '';
   document.getElementById('newComment').value = '';
+  imageUrl = null;
+  document.getElementById('pastePreview').style.display = 'none';
   afficherCommentaires();
 }
 
@@ -394,11 +457,14 @@ async function publierReponse(parentId) {
   const texte = document.getElementById(`reponseTexte-${parentId}`).value.trim();
   if (!texte) return alert("Écris une réponse d'abord !");
 
+  const img = document.getElementById(`reponseImg-${parentId}`);
+  const imgUrl = img && img.dataset ? (img.dataset.url || null) : null;
+
   await db.collection("comments").add({
     auteur: nom, trajet: "",
     date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: Date.now(), texte: texte,
-    parentId: parentId
+    parentId: parentId, image: imgUrl
   });
 
   afficherCommentaires();
